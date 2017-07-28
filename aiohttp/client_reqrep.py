@@ -6,6 +6,7 @@ import sys
 import traceback
 import warnings
 from http.cookies import CookieError, Morsel
+from urllib.parse import urlencode
 from urllib.request import getproxies
 
 from multidict import CIMultiDict, CIMultiDictProxy, MultiDict, MultiDictProxy
@@ -366,7 +367,10 @@ class ClientRequest:
         else:
             path = self.url.raw_path
             if self.url.raw_query_string:
-                path += '?' + self.url.raw_query_string
+                # TODO (Andrei): this is a hack, related to issue from aiohttp
+                # https://github.com/aio-libs/aiohttp/issues/1901#issuecomment-318605294
+                path += '?' + urlencode(dict(self.url.query))
+                # path += '?' + self.url.raw_query_string
 
         writer = PayloadWriter(conn.writer, self.loop)
 
